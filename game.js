@@ -42,7 +42,15 @@ const Gameboard = (function () {
 		return selector.innerHTML.trim().length < 1;
 	}
 
-	return { gameboard, isFull, spotEmpty };
+	// Event handler for spots on board
+	function makeSpotsClickable() {
+		const spots = document.querySelectorAll('.spot');
+		spots.forEach(spot => {
+			spot.addEventListener('click', Display.addPieceToBoard);
+		});
+	}
+
+	return { gameboard, isFull, spotEmpty, makeSpotsClickable };
 })();
 
 /*
@@ -70,8 +78,6 @@ const Display = (function () {
 			div.textContent = current.piece;
 			Gameboard.gameboard[key] = current.piece;
 		} 
-		
-
 	}
 
 	// Setup names on board 
@@ -91,7 +97,49 @@ const Display = (function () {
 		};
 	}
 
-	return { gameboardToHTML, addPieceToBoard, updateScores, updateNames }
+	// Hide start game form
+	// function hideForm() {	
+	// 	const startDiv = document.querySelector('.start');
+	// 	startDiv.style.visibility = 'hidden';
+	// 	const mainDivs = document.querySelectorAll('.main');
+	// 	mainDivs.forEach(div => div.style.opacity = 1);
+	// 	_permitRest();
+	// }
+
+	// function showForm() {
+
+	// }
+
+	function formDisplay(state) {
+		const startDiv = document.querySelector('.start');
+		const mainDivs = document.querySelectorAll('.main');
+
+		if (state === 'hide') 
+		{
+			startDiv.style.visibility = 'hidden';
+			mainDivs.forEach(div => div.style.opacity = 1);
+			_permitReset();
+		} else if (state === 'show') 
+		{
+			const reset = document.querySelector('.reset-button');
+			const startForm = document.querySelector('.start-form');
+			startForm.reset();
+			reset.visibility = 'hidden';
+			startDiv.style.visibility = 'initial';
+			mainDivs.forEach(div => div.style.opacity = 0.5);
+		}
+	}
+
+	// Event handler for reset button
+	function _permitReset() {
+		const reset = document.querySelector('.reset-button');
+		reset.style.visibility = 'initial';
+		reset.addEventListener('click', (e) => {
+			formDisplay('show');
+		});
+	};
+
+	return { gameboardToHTML, addPieceToBoard, updateScores, updateNames, formDisplay }
 })();
 
 
@@ -117,6 +165,7 @@ const Game = (function () {
 	function start() {
 		Display.updateNames();
 		Display.updateScores();
+		Gameboard.makeSpotsClickable();
 	}
 
 	// Checks for a winning combo on board
@@ -158,20 +207,11 @@ const Game = (function () {
 	EVENTS
 	==================
 */
-// Event handler for spots on board
-const spots = document.querySelectorAll('.spot');
-spots.forEach(spot => {
-	spot.addEventListener('click', Display.addPieceToBoard);
-});
 
 // Event handler for start game button
 const start = document.querySelector('.start-button');
 start.addEventListener('click', (e) => {
-	const startDiv = document.querySelector('.start');
-	startDiv.style.visibility = 'hidden';
-	const mainDivs = document.querySelectorAll('.main');
-	mainDivs.forEach(div => div.style.opacity = 1);
+	Display.formDisplay('hide');
 	Game.start();
 })
-
 

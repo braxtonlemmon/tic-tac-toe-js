@@ -76,13 +76,20 @@ body {
 	top: 30%;
 }
 
+.start-form {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
 .name-input {
 	padding: 5px;
 	margin-bottom: 15px;
 	text-align: center;
 }
 
-.start-button {
+.button {
 	border: 3px solid black;
 	border-radius: 7px;
 	padding: 8px;
@@ -91,5 +98,10 @@ body {
 
 .main {
 	opacity: 0.5;
+}
+
+/* Reset button */
+.reset-button {
+	visibility: hidden;
 }
 
