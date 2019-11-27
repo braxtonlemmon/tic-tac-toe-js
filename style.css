@@ -1,0 +1,87 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	background-color: rgb(143, 143, 143);
+	font-family: 'Turret Road', cursive;
+}
+
+/* Main Container */
+.container {
+	padding-top: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 50px;
+	background: rgb(204, 110, 110);
+}
+
+/* Gameboard */
+.gameboard {
+	margin: 30px 0;
+	padding: 20px;
+	display: grid;
+	position: relative;
+	gap: 20px;
+	background-color: rgb(59, 59, 52);
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+}
+
+.spot {
+	height: 70px;
+	width: 70px;
+	background-color: rgb(140, 196, 87);
+	font-size: 4em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
+
+/* Scoreboard */
+.scoreboard {
+	background-color: rgb(29, 81, 122);
+	display: flex;
+	width: 100%;
+	margin: 20px;
+	justify-content: space-around;
+}
+
+.player {
+	text-align: center;
+}
+
+.my-turn {
+	color: white;
+	font-size: 1.2em;	
+}
+
+/* Start game box */
+.start {
+	position: absolute;
+	width: 200px;
+	height: 150px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgb(150, 150, 150);
+	border: 3px solid black;
+	border-radius: 5px;
+	top: 30%;
+}
+
+.start-button {
+	border: 3px solid black;
+	border-radius: 7px;
+	padding: 8px;
+	cursor: pointer;
+}
+
+.main {
+	opacity: 0.5;
+}
+
