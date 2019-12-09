@@ -11,11 +11,11 @@ body {
 
 /* Main Container */
 .container {
-	padding-top: 50px;
+	padding: 20px 50px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin: 50px;
+	margin: 30px;
 	background: rgb(204, 110, 110);
 }
 
@@ -60,8 +60,12 @@ body {
 	font-size: 1.2em;	
 }
 
+.current {
+	color: white;
+}
+
 /* Start game box */
-.start {
+.box {
 	padding: 10px;
 	position: absolute;
 	width: 300px;
@@ -74,6 +78,7 @@ body {
 	border: 3px solid black;
 	border-radius: 5px;
 	top: 30%;
+	visibility: visible;
 }
 
 .start-form {
@@ -100,8 +105,18 @@ body {
 	opacity: 0.5;
 }
 
+.full {
+	opacity: 1.0;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+
+
 /* Reset button */
 .reset-button {
-	visibility: hidden;
+	margin: 15px 0;
 }
 
