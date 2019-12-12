@@ -16,7 +16,7 @@ const Player = (name, piece, id) => {
 	GAMEBOARD module
 	================
 */
-const Gameboard = (function () {
+const Gameboard = (function() {
 	// Holds the values of each gameboard spot in an array
 	let gameboard = Array(9).fill('');
 
@@ -36,6 +36,7 @@ const Gameboard = (function () {
 		spots.forEach(spot => {
 			spot.addEventListener('click', (e) => {
 				Display.addPieceToBoard(e);
+				if (Game.robot) Robot.move();
 			})
 		})
 	};
@@ -157,7 +158,8 @@ const Display = (function () {
 	
 	// Updates individual DOM element with current player's piece
 	const addPieceToBoard = function(e) {
-		const key = e.target.dataset.key;
+		const key = 
+			typeof(e) === 'object' ? e.target.dataset.key : e;
 		const div = document.querySelector(`.spot[data-key="${key}"]`);
 		if (Gameboard.spotEmpty(div)) {
 			div.textContent = Game.current.piece;
@@ -291,6 +293,20 @@ const Display = (function () {
 		swapCurrent, 
 		clearBoard,
 	}
+})();
+
+// A.I. player
+const Robot = (function() {
+	// Chooses random available spot on board
+	const move = function() {
+		let selector;
+
+		do {
+
+		}
+		while (!spotEmpty)
+	}
+	
 })();
 
 
