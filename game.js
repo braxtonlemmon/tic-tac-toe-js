@@ -1,28 +1,4 @@
 /*
-	Pre-coding brainstorming:
-	
-	Objects needed and where they will be stored:
-
-		Modules (only need one instance of...):
-			gameboard
-			displayController
-
-		Factories (need multiple instances of...):
-			player
-
-
-	UPDATE brainstorming 4/11/19
-		Currently players can place tokens in empty spots. The console shows when the game 
-		is either a tie or a win. 
-		
-		Things to do:
-		- Highlight the name of the current player
-		- Declare the winner of the game
-		- Reset board if game is over
-		- Keep track of player points
-*/
-
-/*
 	================
 	PLAYER factory
 	================
@@ -46,7 +22,7 @@ const Gameboard = (function () {
 
 	// Checks to see if board is full
 	const isFull = function() {
-		return gameboard.every(spot => spot != '') ? true : false;
+		return this.gameboard.every(spot => spot != '') ? true : false;
 	};
 
 	// Checks to see if spot on HTML board is empty
@@ -69,7 +45,13 @@ const Gameboard = (function () {
 		this.gameboard = Array(9).fill('');
 	};
 
-	return { gameboard, isFull, spotEmpty, makeSpotsClickable, reset };
+	return { 
+		gameboard, 
+		isFull, 
+		spotEmpty, 
+		makeSpotsClickable, 
+		reset 
+	};
 })();
 
 
@@ -82,11 +64,10 @@ const Gameboard = (function () {
 */
 const Game = (() => {
 	let players = [Player('', 'x', 1), Player('', 'o', 2)];
-	let current = players[0];
-	players[0].turn = 1;
+	let current = {};
 
 	// Winning combo possibilities held in array 
-	const winningMoves = [
+	const _winningMoves = [
 		[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
 		[1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
 	];
@@ -98,12 +79,55 @@ const Game = (() => {
 		Display.updateNames();
 		Display.updateScores();
 		Gameboard.makeSpotsClickable();
+		Game.players[0].turn = 1;
+		Game.current = players[0];
+	};
+
+	const swapPlayers = function() {
+		_swapPlayerObjects();
+		Display.swapCurrent();
+	};
+
+	const endGame = function() {
+		if (_checkForWin()) {
+			Game.current.score++;
+			Display.showBox('win');	
+		} else if (Gameboard.isFull()) {
+			Display.showBox('tie');
+		}
+	}
+
+	const reset = function() {
+		Game.players.forEach(player => {
+			player.score = 0;
+		});
+		Gameboard.reset();
+		Display.clearBoard();
+		Display.showBox('form');
+	}
+
+	const rematch = function() {
+		Gameboard.reset();
+		Display.clearBoard();
+		Game.players[0].turn = 1;
+		Game.players[1].turn = 0;
+		Game.current = Game.players[0];
+		const player = document.querySelector('.player1');
+		player.classList.toggle('current');
+		Display.updateScores();
+	}
+
+	/* PRIVATE */
+
+	const _swapPlayerObjects = function () {
+		[Game.players[0].turn, Game.players[1].turn] = players[0].turn ? [0, 1] : [1, 0];
+		Game.current = players[0].turn ? players[0] : players[1];
 	};
 
 	// Checks for a winning combo on board
-	const checkForWin = function() {
+	const _checkForWin = function () {
 		let win = false;
-		winningMoves.forEach(line => {
+		_winningMoves.forEach(line => {
 			let boardLine = [];
 			line.forEach(spot => boardLine.push(Gameboard.gameboard[spot]));
 			if (boardLine.every(spot => (spot === boardLine[0]) && (spot != ''))) win = true;
@@ -111,55 +135,15 @@ const Game = (() => {
 		return win;
 	};
 
-	// Checks for tie
-	const checkForTie = function() {
-		return Gameboard.isFull() && !checkForWin() ? true : false;
-	};
-
-	// Returns current player based on who has a 'turn' value of 1
-	const getCurrentPlayer = function() {
-		[players[0].turn, players[1].turn] = players[0].turn ? [0, 1] : [1, 0]; 
-		
-		return players[0].turn ? players[0] : players[1];
-	};
-
-	const swapPlayerObjects = function() {
-		[players[0].turn, players[1].turn] = players[0].turn ? [0, 1] : [1, 0];
-		Game.current = players[0].turn ? players[0] : players[1];
-		// console.log(current);
-	};
-
-	const swapPlayers = function() {
-		swapPlayerObjects();
-		Display.swapCurrent();
-	};
-
-	/*
-	if there is a win --> announce winner, update scores, and reset board
-	if there is a tie --> announce tie, update scores, and reset board
-	*/
-
-	const endGame = function() {
-		if (checkForWin()) {
-			console.log('win');
-			Display.showBox('win');
-			
-		} else if (Gameboard.isFull()) {
-			console.log('full');
-			Display.showBox('tie');
-		}
-	}
-
-	const reset = function() {
-		this.players = [Player('', 'x', 1), Player('', 'o', 2)];
-		this.players[0].turn = 1;
-		this.current = players[0];
-		Gameboard.reset();
-		Display.clearBoard();
-		Display.showBox('form');
-	}
-
-	return { players, checkForWin, checkForTie, start, players, getCurrentPlayer, current, endGame, swapPlayers, reset, winningMoves };
+	return { 
+		players,  
+		current, 
+		start,
+		swapPlayers,
+		endGame,
+		reset, 
+		rematch,
+	 };
 })();
 
 /*
@@ -170,6 +154,7 @@ const Game = (() => {
 const playerDivs = document.querySelectorAll('.player');
 
 const Display = (function () {
+	
 	// Updates individual DOM element with current player's piece
 	const addPieceToBoard = function(e) {
 		const key = e.target.dataset.key;
@@ -239,27 +224,23 @@ const Display = (function () {
 				content.innerHTML = `
 					<p>${Game.current.name} is the winner!</p>
 					<button class="button rematch-button">REMATCH</button>
-					<button class="button reset-button">RESET</button>
+					<button class="button reset-button">NEW GAME</button>
 				`
 		} else if (type === 'tie') {
+			console.log('tie');
 				content.innerHTML = `
 					<p>Game is a tie...</p>
 					<button class="button rematch-button">REMATCH</button>
-					<button class="button reset-button">RESET</button>
+					<button class="button reset-button">NEW GAME</button>
 				`;
 		}	
 
 		box.appendChild(content);
 		if (type === 'form') _startButton();
-		if (type ==='win' || type === 'tie') resetButton();
-	};
-
-	const _startButton = function(e) {
-		const start = document.querySelector('.start-button');
-		start.addEventListener('click', (e) => {
-			gameDisplay('game');
-			Game.start();
-		})
+		if (type ==='win' || type === 'tie') {
+			resetButton();
+			_rematchButton();
+		}
 	};
 
 	const resetButton = function(e) {
@@ -270,38 +251,45 @@ const Display = (function () {
 		});
 	};
 
-	// =========== private ==============
-
 	// Toggles current class to highlight playeron scoreboard
-	const swapCurrent = function() {
+	const swapCurrent = function () {
 		playerDivs.forEach(player => player.classList.toggle('current'));
 	}
 
-	// Event handler for reset button
-	const _permitReset = function() {
-		const reset = document.querySelector('.reset-button');
-		reset.style.visibility = 'initial';
-		reset.addEventListener('click', (e) => {
-			Game.reset();
-		});
-	};
-
-	const clearBoard = function() {
+	const clearBoard = function () {
 		const board = document.querySelectorAll('.spot');
 		const players = document.querySelectorAll('.player');
 		board.forEach(spot => spot.textContent = '');
 		players.forEach(player => player.classList.remove('current'));
 	}
 
+	// =========== private ==============
+
+	const _startButton = function(e) {
+		const start = document.querySelector('.start-button');
+		start.addEventListener('click', (e) => {
+			gameDisplay('game');
+			Game.start();
+		})
+	};
+
+	const _rematchButton = function(e) {
+		const rematch = document.querySelector('.rematch-button');
+		rematch.addEventListener('click', (e) => {
+			gameDisplay('game');
+			Game.rematch();
+		})
+	}
+
 	return { 
 		addPieceToBoard, 
+		updateNames,
 		updateScores, 
-		updateNames,  
+		gameDisplay,
 		showBox, 
+		resetButton,
 		swapCurrent, 
 		clearBoard,
-		gameDisplay,
-		resetButton
 	}
 })();
 
@@ -310,25 +298,3 @@ const Display = (function () {
 Display.gameDisplay('box');
 Display.showBox('form');
 Display.resetButton();
-
-
-
-
-// const testModule = (function() {
-// 	let fruit = 'orange';
-
-// 	const changeFruit = function() {
-// 		this.fruit = 'banana';
-// 	}
-
-// 	return { fruit, changeFruit };
-// })();
-
-// console.log(testModule.fruit); // orange
-
-// testModule.changeFruit();
-// console.log(testModule.fruit); // orange
-
-// testModule.fruit = 'grape';
-// console.log(testModule.fruit); // grape
-
