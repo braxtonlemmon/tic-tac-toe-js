@@ -66,6 +66,7 @@ const Gameboard = (function() {
 const Game = (() => {
 	let players = [Player('', 'x', 1), Player('', 'o', 2)];
 	let current = {};
+	let robot = 1;
 
 	// Winning combo possibilities held in array 
 	const _winningMoves = [
@@ -139,6 +140,7 @@ const Game = (() => {
 	return { 
 		players,  
 		current, 
+		robot,
 		start,
 		swapPlayers,
 		endGame,
@@ -299,14 +301,15 @@ const Display = (function () {
 const Robot = (function() {
 	// Chooses random available spot on board
 	const move = function() {
-		let selector;
-
-		do {
-
-		}
-		while (!spotEmpty)
+		const random = () => { return Math.floor(Math.random() * 9) };
+		let spotNumber = random();
+		while (Gameboard.gameboard[spotNumber] != '') {
+			spotNumber = random();
+		};
+		Display.addPieceToBoard(spotNumber);
 	}
 	
+	return { move };
 })();
 
 
