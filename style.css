@@ -1,3 +1,4 @@
+/* Universal */
 * {
 	margin: 0;
 	padding: 0;
@@ -9,6 +10,7 @@ body {
 	font-family: 'Turret Road', cursive;
 }
 
+
 /* Main Container */
 .container {
 	padding: 20px 50px;
@@ -17,7 +19,9 @@ body {
 	align-items: center;
 	margin: 30px;
 	background: rgb(204, 110, 110);
+	border: 5px solid rgb(34, 34, 34);
 }
+
 
 /* Gameboard */
 .gameboard {
@@ -45,23 +49,31 @@ body {
 /* Scoreboard */
 .scoreboard {
 	background-color: rgb(29, 81, 122);
+	border: 5px solid rgb(34, 34, 34);
 	display: flex;
 	width: 100%;
+	height: 60px;
 	margin: 20px;
-	justify-content: space-around;
+	justify-content: space-evenly;
+}
+
+.scoreboard-line {
+	height: 100%;
+	width: 4px;
+	background: rgb(34, 34, 34);
 }
 
 .player {
 	text-align: center;
-}
-
-.my-turn {
-	color: white;
-	font-size: 1.2em;	
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .current {
 	color: white;
+	font-size: 1.1em;
 }
 
 /* Start game box */
@@ -112,8 +124,6 @@ body {
 .hidden {
 	visibility: hidden;
 }
-
-
 
 /* Reset button */
 .reset-button {

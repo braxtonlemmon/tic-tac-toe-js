@@ -17,18 +17,11 @@ const Player = (name, piece, id) => {
 	================
 */
 const Gameboard = (function() {
-	// Holds the values of each gameboard spot in an array
 	let gameboard = Array(9).fill('');
 
-	// Checks to see if board is full
 	const isFull = function() {
-		return this.gameboard.every(spot => spot != '') ? true : false;
+		return this.gameboard.every(spot => spot != '');
 	};
-
-	// Checks to see if spot on HTML board is empty
-	// const spotEmpty = function(selector) {
-	// 	return selector.innerHTML.trim().length < 1;
-	// };
 
 	const spotEmpty = function(input) {
 		const key = 
@@ -37,7 +30,6 @@ const Gameboard = (function() {
 		return div.innerHTML.trim().length < 1;
 	}
 
-	// Event handler for spots on board
 	const makeSpotsClickable = function() {
 		const spots = document.querySelectorAll('.spot');
 		spots.forEach(spot => {
@@ -53,9 +45,6 @@ const Gameboard = (function() {
 		})
 	};
 
-
-
-	// Removes content from all board spots using an array of empty strings
 	const reset = function() {
 		this.gameboard = Array(9).fill('');
 	};
@@ -69,9 +58,6 @@ const Gameboard = (function() {
 	};
 })();
 
-
-
-
 /*
 	==============
 	GAME module
@@ -82,7 +68,6 @@ const Game = (() => {
 	let current = {};
 	let robot = false;
 
-	// Winning combo possibilities held in array 
 	const _winningMoves = [
 		[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
 		[1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
@@ -92,6 +77,7 @@ const Game = (() => {
 	const start = function() {
 		const player = document.querySelector('.player1');
 		const robot = document.getElementById('robot');
+		
 		if (robot.checked) this.robot = true;
 		player.classList.toggle('current');
 		Display.updateNames();
@@ -140,7 +126,6 @@ const Game = (() => {
 		Robot.turn = false;
 	}
 
-
 	/* PRIVATE */
 
 	const _swapPlayerObjects = function () {
@@ -176,25 +161,22 @@ const Game = (() => {
 	DISPLAY module
 	==============
 */
-const playerDivs = document.querySelectorAll('.player');
+
 
 const Display = (function () {
-	
-	// Updates individual DOM element with current player's piece
+	const playerDivs = document.querySelectorAll('.player');
+
 	const addPieceToBoard = function(e) {
-		console.log(Game.current);
 		const key = 
 			typeof(e) === 'object' ? e.target.dataset.key : e;
 		const div = document.querySelector(`.spot[data-key="${key}"]`);
 		if (Gameboard.spotEmpty(e)) {
 			div.textContent = Game.current.piece;
 			Gameboard.gameboard[key] = Game.current.piece;
-			// Game.endGame();
 			Game.endGame() ? (Robot.turn = true) : Game.swapPlayers();
 		}
 	};
 
-	// Setup names on board 
 	const updateNames = function() {
 		for (let i = 1; i < 3; i++) {
 			const player = document.querySelector(`.player${i}-name`);
@@ -204,7 +186,6 @@ const Display = (function () {
 		}
 	};
 
-	// Updates player scores
 	const updateScores = function() {
 		for (let i = 1; i < 3; i++) {
 			const player = document.querySelector(`.player${i}`);
@@ -225,12 +206,12 @@ const Display = (function () {
 		}
 	}
 
+	// Dynamically fill in content of pop-up box
 	const showBox = function(type) {
 		gameDisplay('box');
 		const box = document.querySelector('.box');
 		let content = document.createElement('div');
 
-		// Removes all content from pop-up box
 		while (box.firstChild) {
 			box.removeChild(box.firstChild);
 		}
@@ -250,14 +231,16 @@ const Display = (function () {
 				</form>
 				<button class="button start-button">START</button>
 			`;
-		} else if (type === 'win') {
+		} 
+		else if (type === 'win') {
 			console.log('yeswin');	
 				content.innerHTML = `
 					<p>${Game.current.name} is the winner!</p>
 					<button class="button rematch-button">REMATCH</button>
 					<button class="button reset-button">NEW GAME</button>
 				`
-		} else if (type === 'tie') {
+		} 
+		else if (type === 'tie') {
 			console.log('tie');
 				content.innerHTML = `
 					<p>Game is a tie...</p>
@@ -294,7 +277,7 @@ const Display = (function () {
 		players.forEach(player => player.classList.remove('current'));
 	}
 
-	// =========== private ==============
+	/* =============== PRIVATE =============== */
 
 	const _startButton = function(e) {
 		const start = document.querySelector('.start-button');
@@ -324,10 +307,15 @@ const Display = (function () {
 	}
 })();
 
-// A.I. player
+/*
+	=============
+	A.I. MODULE
+	=============
+*/
+
 const Robot = (function() {
 	let turn = false;
-	// Chooses random available spot on board
+
 	const move = function() {
 		const random = () => { return Math.floor(Math.random() * 9) };
 		let spotNumber = random();
