@@ -26,20 +26,34 @@ const Gameboard = (function() {
 	};
 
 	// Checks to see if spot on HTML board is empty
-	const spotEmpty = function(selector) {
-		return selector.innerHTML.trim().length < 1;
-	};
+	// const spotEmpty = function(selector) {
+	// 	return selector.innerHTML.trim().length < 1;
+	// };
+
+	const spotEmpty = function(input) {
+		const key = 
+			typeof(input) === 'object' ? input.target.dataset.key : input;
+		const div = document.querySelector(`.spot[data-key="${key}"]`);
+		return div.innerHTML.trim().length < 1;
+	}
 
 	// Event handler for spots on board
 	const makeSpotsClickable = function() {
 		const spots = document.querySelectorAll('.spot');
 		spots.forEach(spot => {
 			spot.addEventListener('click', (e) => {
-				Display.addPieceToBoard(e);
-				if (Game.robot) Robot.move();
+				if (spotEmpty(e) && !Robot.turn) {
+					Display.addPieceToBoard(e);
+					if (Game.robot && !Robot.turn) {
+						Robot.turn = true;
+						setTimeout(Robot.move, 1500);
+					}
+				}
 			})
 		})
 	};
+
+
 
 	// Removes content from all board spots using an array of empty strings
 	const reset = function() {
@@ -66,7 +80,7 @@ const Gameboard = (function() {
 const Game = (() => {
 	let players = [Player('', 'x', 1), Player('', 'o', 2)];
 	let current = {};
-	let robot = 1;
+	let robot = false;
 
 	// Winning combo possibilities held in array 
 	const _winningMoves = [
@@ -77,6 +91,8 @@ const Game = (() => {
 	// Sets up and initiates the game
 	const start = function() {
 		const player = document.querySelector('.player1');
+		const robot = document.getElementById('robot');
+		if (robot.checked) this.robot = true;
 		player.classList.toggle('current');
 		Display.updateNames();
 		Display.updateScores();
@@ -93,9 +109,11 @@ const Game = (() => {
 	const endGame = function() {
 		if (_checkForWin()) {
 			Game.current.score++;
-			Display.showBox('win');	
+			Display.showBox('win');
+			return true;	
 		} else if (Gameboard.isFull()) {
 			Display.showBox('tie');
+			return true;
 		}
 	}
 
@@ -106,6 +124,8 @@ const Game = (() => {
 		Gameboard.reset();
 		Display.clearBoard();
 		Display.showBox('form');
+		Game.robot = false;
+		Robot.turn = false;
 	}
 
 	const rematch = function() {
@@ -117,7 +137,9 @@ const Game = (() => {
 		const player = document.querySelector('.player1');
 		player.classList.toggle('current');
 		Display.updateScores();
+		Robot.turn = false;
 	}
+
 
 	/* PRIVATE */
 
@@ -160,14 +182,15 @@ const Display = (function () {
 	
 	// Updates individual DOM element with current player's piece
 	const addPieceToBoard = function(e) {
+		console.log(Game.current);
 		const key = 
 			typeof(e) === 'object' ? e.target.dataset.key : e;
 		const div = document.querySelector(`.spot[data-key="${key}"]`);
-		if (Gameboard.spotEmpty(div)) {
+		if (Gameboard.spotEmpty(e)) {
 			div.textContent = Game.current.piece;
 			Gameboard.gameboard[key] = Game.current.piece;
-			Game.endGame();
-			Game.swapPlayers();
+			// Game.endGame();
+			Game.endGame() ? (Robot.turn = true) : Game.swapPlayers();
 		}
 	};
 
@@ -220,6 +243,10 @@ const Display = (function () {
 					<input type="text" class="name-input" id="player1" placeholder="Name">
 					<label>Player 2</label>
 					<input type="text" class="name-input" id="player2" placeholder="Name">
+					<div class="computer-check">
+						<label>Player 2 is a computer?</label>
+						<input type="checkbox" id="robot">
+					</div>
 				</form>
 				<button class="button start-button">START</button>
 			`;
@@ -299,6 +326,7 @@ const Display = (function () {
 
 // A.I. player
 const Robot = (function() {
+	let turn = false;
 	// Chooses random available spot on board
 	const move = function() {
 		const random = () => { return Math.floor(Math.random() * 9) };
@@ -307,9 +335,13 @@ const Robot = (function() {
 			spotNumber = random();
 		};
 		Display.addPieceToBoard(spotNumber);
+		Robot.turn = false;
 	}
 	
-	return { move };
+	return {
+		 turn,
+		 move,
+	 };
 })();
 
 
